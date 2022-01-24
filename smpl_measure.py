@@ -18,7 +18,7 @@ landmark_female = {
     "Burst_Cir": [4429, 599, 3014],
     "Waist_Cir": [3509, 4118, 797],#[3509, 4118, 3502]
     "Hip_Cir": [3117, 6539, 3510],
-    "Thigh_Cir":[4334, 4713, 4646], #[4334, 4419, 4646],#[4334, 4713, 4646],
+    "Thigh_Cir":[4334, 4713, 6556], #[4334, 4419, 4646],#[4334, 4713, 4646],
     "Upper_Arm_Cir": [4917, 5012, 5364],#[4917, 5012, 6442]
     "Upper_Arm_Length": [5324, 5034,5144],# 5218],
     "Arm_Length": [5324, 5569, 5110],
@@ -391,7 +391,7 @@ def measure(smpl,file_path,debug = False):
                 o3d.visualization.draw(mesh_arr,title=key)
         elif method == "Cir":
             if (key.find('Burst') == -1) and (key.find('Hip') == -1):
-                measure_len = concave_cir(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,True)#fin
+                measure_len = concave_cir(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,debug)#fin
             else:
                 measure_len = convex_cir(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,debug)#fin
         else:
