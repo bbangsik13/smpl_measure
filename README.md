@@ -6,6 +6,11 @@
 ## Run
 > python smpl_measure.py --file smplparams.pkl
 
+## Landmark vertex index<br>
+
+![image](https://user-images.githubusercontent.com/78462588/152916376-8ad5cdcd-354d-42a0-9c26-37f6a5267ed0.png)
+
+
 ## Process
 
 - height<br>
