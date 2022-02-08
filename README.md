@@ -6,7 +6,7 @@
 ## Run
 > python smpl_measure.py --file smplparams.pkl
 
-## Measure
+## Process
 
 - height<br>
 ![image](https://user-images.githubusercontent.com/78462588/152914654-1d162630-f764-4338-884e-7e8434cf0211.png)
