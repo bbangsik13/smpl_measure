@@ -5,6 +5,7 @@ import sys
 import trimesh
 from smpl.serialization import load_model
 import networkx as nx
+import argparse
 
 landmark_female = {
     "Stature_Height": [411],
@@ -303,56 +304,7 @@ def face_len(landmark,mesh,vertices,faces,title,debug=False):
 
     return length
 
-def measure_correction(smpl,file_path,height,debug = False):
 
-    applyShapeFromSMPLParam(smpl, file_path)#apply beta
-
-    T_pose_vertices = smpl.r
-    T_pose_faces = smpl.f
-    T_pose_mesh = trimesh.base.Trimesh(T_pose_vertices, T_pose_faces)
-
-    smpl.pose[16 * 3 + 2] = - 14 * np.pi / 32
-    smpl.pose[17 * 3 + 2] = + 14 * np.pi / 32
-
-    I_pose_vertices = smpl.r
-    I_pose_faces = smpl.f
-    I_pose_mesh = trimesh.base.Trimesh(I_pose_vertices, I_pose_faces)
-
-    floor_landmark = np.argmin(T_pose_vertices[:,1])
-    ratio = 1
-    measured_dict = {}
-    for key in landmark_female:
-        method = key.split('_')[-1]
-        landmark = landmark_female[key]
-        if method == "Height":
-            measure_len = T_pose_vertices[landmark[0]][1] - T_pose_vertices[floor_landmark][1]#fin
-            if debug:
-                mesh_arr = []
-                human = o3d.geometry.TriangleMesh(o3d.utility.Vector3dVector(deepcopy(T_pose_vertices)),
-                                                  o3d.utility.Vector3iVector(deepcopy(T_pose_faces)))
-                mesh_arr.append(human.paint_uniform_color([1, 1, 1]))
-                mesh_arr.append(
-                    o3d.geometry.TriangleMesh.create_sphere(radius=2e-2).paint_uniform_color([1, 0, 0]).translate(
-                        T_pose_vertices[floor_landmark]))
-                mesh_arr.append(
-                    o3d.geometry.TriangleMesh.create_sphere(radius=2e-2).paint_uniform_color([0, 1, 0]).translate(
-                        T_pose_vertices[landmark[0]]))
-                o3d.visualization.draw(mesh_arr,title=key)
-        elif method == "Cir":
-            if (key.find('Burst') == -1) and (key.find('Hip') == -1):
-                measure_len = concave_cir(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,debug)#fin
-            else:
-                measure_len = convex_cir(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,debug)#fin
-        else:
-            if key.find('Arm') == -1:
-                measure_len = face_len(landmark,T_pose_mesh,T_pose_vertices,T_pose_faces,key,debug)#fin?
-            else:
-                measure_len = face_len(landmark, T_pose_mesh, T_pose_vertices, T_pose_faces, key, debug)#fin?
-        measure_len *= 100
-        if key == "Stature_Height": ratio = height / measure_len
-        measured_dict[key] = measure_len * ratio #np.round(measure_len * 100, 2)
-
-    return measured_dict
 
 def measure(smpl,file_path,debug = False):
 
@@ -404,10 +356,13 @@ def measure(smpl,file_path,debug = False):
     return measured_dict
 
 if __name__ == "__main__":
-    filepath = sys.argv[1]
-    debug = False
-    smpl = loadSMPL(gender='female')  # load SMPL model
-    measured_dict = measure(smpl,filepath,debug)
+    parser = argparse.ArgumentParser(description='smpl_measure')
+    parser.add_argument('--file', required=True, help='smpl param pkl file')
+    parser.add_argument('--visualize', type=bool, default=False, help='for debug')
+    parser.add_argument('--gender', type=str, default='female', help='smpl model gender')
+    opt = parser.parse_args()
+    smpl = loadSMPL(gender=opt.gender)  # load SMPL model
+    measured_dict = measure(smpl,opt.file,opt.visualize)
     print(measured_dict)
 
 
